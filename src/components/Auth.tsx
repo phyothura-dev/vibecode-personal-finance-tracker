@@ -1,0 +1,491 @@
+import React, { useState } from 'react';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
+import { Wallet, Mail, Lock, User, RefreshCw, Eye, EyeOff, CheckCircle, Chrome } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useLanguage } from '../lib/LanguageContext';
+
+interface AuthProps {
+  onShowToast: (message: string, type: 'success' | 'error') => void;
+}
+
+export default function Auth({ onShowToast }: AuthProps) {
+  const { t } = useLanguage();
+  const [mode, setMode] = useState<'signin' | 'signup' | 'forgot'>('signin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [currency, setCurrency] = useState('$');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
+  const [operationNotAllowedError, setOperationNotAllowedError] = useState(false);
+  const [unauthorizedDomainError, setUnauthorizedDomainError] = useState(false);
+
+  const validateEmail = (val: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      onShowToast(t('auth.errorFillAll'), 'error');
+      return;
+    }
+    if (!validateEmail(email)) {
+      onShowToast(t('auth.errorValidEmail'), 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      onShowToast(t('auth.welcomeBack'), 'success');
+    } catch (err: any) {
+      console.error(err);
+      let errMsg = t('auth.invalidCredentials');
+      if (err.code === 'auth/invalid-credential') {
+        errMsg = t('auth.invalidCredentials');
+      } else if (err.code === 'auth/user-not-found') {
+        errMsg = t('auth.userNotFound');
+      } else if (err.code === 'auth/wrong-password') {
+        errMsg = t('auth.wrongPassword');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        errMsg = t('auth.authDisabled');
+        setOperationNotAllowedError(true);
+      } else if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('unauthorized-domain'))) {
+        errMsg = "Unauthorized Domain: This hosting domain is not authorized in your Firebase Console.";
+        setUnauthorizedDomainError(true);
+      }
+      onShowToast(errMsg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password || !fullName) {
+      onShowToast(t('auth.errorFillAll'), 'error');
+      return;
+    }
+    if (!validateEmail(email)) {
+      onShowToast(t('auth.errorValidEmail'), 'error');
+      return;
+    }
+    if (password.length < 6) {
+      onShowToast(t('auth.errorPasswordLength'), 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // 1. Create firebase user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // 2. Setup user profile in firestore
+      const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`;
+      const userRef = doc(db, 'users', user.uid);
+      await setDoc(userRef, {
+        fullName,
+        photoURL: avatarUrl,
+        currency,
+        monthlyIncomeGoal: null,
+        email: email
+      });
+
+      // 3. Seed default categories
+      const defaultCategories = [
+        { name: 'Salary', type: 'income' },
+        { name: 'Freelance', type: 'income' },
+        { name: 'Bonus', type: 'income' },
+        { name: 'Food', type: 'expense' },
+        { name: 'Transport', type: 'expense' },
+        { name: 'Shopping', type: 'expense' },
+        { name: 'Bills', type: 'expense' },
+        { name: 'Entertainment', type: 'expense' }
+      ];
+
+      for (const cat of defaultCategories) {
+        const catId = cat.name.toLowerCase().replace(/\s+/g, '-');
+        const catRef = doc(db, 'users', user.uid, 'categories', catId);
+        await setDoc(catRef, {
+          name: cat.name,
+          type: cat.type
+        });
+      }
+
+      onShowToast(t('auth.signUpButton') + ' Success! Welcome onboard.', 'success');
+    } catch (err: any) {
+      console.error(err);
+      let errMsg = t('auth.errorCreateAccount');
+      if (err.code === 'auth/email-already-in-use') {
+        errMsg = t('auth.errorAccountExists');
+      } else if (err.code === 'auth/weak-password') {
+        errMsg = t('auth.errorWeakPassword');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        errMsg = t('auth.authDisabled');
+        setOperationNotAllowedError(true);
+      } else if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('unauthorized-domain'))) {
+        errMsg = "Unauthorized Domain: This hosting domain is not authorized in your Firebase Console.";
+        setUnauthorizedDomainError(true);
+      }
+      onShowToast(errMsg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      onShowToast(t('auth.welcomeBack'), 'success');
+    } catch (err: any) {
+      console.error(err);
+      let errMsg = t('auth.googleSignInFailed', { message: err.message || 'Unknown error' });
+      if (err.code === 'auth/unauthorized-domain' || (err.message && err.message.includes('unauthorized-domain'))) {
+        errMsg = "Unauthorized Domain: This hosting domain is not authorized in your Firebase Console.";
+        setUnauthorizedDomainError(true);
+      }
+      onShowToast(errMsg, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      onShowToast(t('auth.errorFillAll'), 'error');
+      return;
+    }
+    if (!validateEmail(email)) {
+      onShowToast(t('auth.errorValidEmail'), 'error');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setForgotSent(true);
+      onShowToast('Password reset link sent to your email!', 'success');
+    } catch (err: any) {
+      console.error(err);
+      onShowToast(t('auth.passwordResetFailed'), 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md flex flex-col items-center">
+        <div className="flex items-center justify-center h-12 w-12 rounded-xl bg-[#4F46E5] text-white shadow-xs mb-5 ">
+          <Wallet className="w-6 h-6" />
+        </div>
+        <h2 className="text-center text-2xl font-bold tracking-tight text-[#111827] font-sans">
+          {mode === 'signin' && t('auth.signInTitle')}
+          {mode === 'signup' && t('auth.signUpTitle')}
+          {mode === 'forgot' && t('auth.forgotTitle')}
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-500">
+          {mode === 'signin' && (
+            <>
+              {t('auth.or')}{' '}
+              <button
+                id="link-to-signup"
+                onClick={() => {
+                  setMode('signup');
+                  setForgotSent(false);
+                }}
+                className="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
+              >
+                {t('auth.createAccountLink')}
+              </button>
+            </>
+          )}
+          {mode === 'signup' && (
+            <>
+              {t('auth.alreadyHaveAccount')}{' '}
+              <button
+                id="link-to-signin"
+                onClick={() => setMode('signin')}
+                className="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
+              >
+                {t('auth.signInInstead')}
+              </button>
+            </>
+          )}
+          {mode === 'forgot' && (
+            <button
+              id="link-back-to-signin"
+              onClick={() => {
+                setMode('signin');
+                setForgotSent(false);
+              }}
+              className="font-semibold text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
+            >
+              {t('auth.backToSignIn')}
+            </button>
+          )}
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <motion.div
+          layout
+          className="bg-white py-8 px-6 border border-slate-200 rounded-xl sm:px-10 shadow-xs"
+        >
+          {operationNotAllowedError && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6 text-xs text-amber-800 leading-relaxed space-y-2">
+              <p className="font-semibold text-amber-900 flex items-center gap-1.5">
+                <span>⚠️</span> {t('auth.configActionRequired')}
+              </p>
+              <p>
+                {t('auth.configRequiredDescription', { projectId: auth.app.options.projectId || 'fintrack' })}
+              </p>
+              <div className="border-t border-amber-200/60 my-2 pt-2">
+                <p className="font-semibold text-amber-900 mb-1">{t('auth.howToEnable')}</p>
+                <ol className="list-decimal pl-4 space-y-1 text-amber-900">
+                  <li>{t('auth.step1')}</li>
+                  <li>{t('auth.step2')}</li>
+                  <li>{t('auth.step3')}</li>
+                  <li>{t('auth.step4')}</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {unauthorizedDomainError && (
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl mb-6 text-xs text-rose-800 leading-relaxed space-y-2 col-span-full">
+              <p className="font-semibold text-rose-900 flex items-center gap-1.5">
+                <span>⚠️</span> Unauthorized Domain Configuration Required
+              </p>
+              <p>
+                The hosting domain <code className="bg-rose-100 px-1 py-0.5 rounded text-rose-900 font-semibold">{window.location.hostname}</code> is not authorized in your Firebase Console for project <strong className="font-semibold">{auth.app.options.projectId || 'fintrack'}</strong>.
+              </p>
+              <div className="border-t border-rose-200/60 my-2 pt-2">
+                <p className="font-semibold text-rose-950 mb-1">How to authorize this domain:</p>
+                <ol className="list-decimal pl-4 space-y-1 text-rose-900">
+                  <li>Open the <a href={`https://console.firebase.google.com/project/${auth.app.options.projectId || 'fintrack'}/authentication/providers`} target="_blank" rel="noopener noreferrer" className="underline font-semibold hover:text-rose-950">Firebase Console</a>.</li>
+                  <li>In the left sidebar, go to <strong>Build &gt; Authentication</strong>.</li>
+                  <li>Select the <strong>Settings</strong> tab at the top.</li>
+                  <li>Click on <strong>Authorized domains</strong> in the list.</li>
+                  <li>Click <strong>Add domain</strong>, enter <code className="bg-rose-100 px-1 py-0.5 rounded font-mono font-semibold">{window.location.hostname}</code> (or <code className="bg-rose-100 px-1 py-0.5 rounded font-mono font-semibold">run.app</code> to cover all container runs), and click <strong>Add</strong>.</li>
+                  <li>After adding, reload this page and try again!</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {mode === 'forgot' && forgotSent ? (
+            <div className="text-center py-4">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-emerald-50 text-[#059669] mb-4">
+                <CheckCircle className="h-6 w-6" />
+              </div>
+              <h3 className="text-base font-semibold text-[#111827]">{t('auth.checkInbox')}</h3>
+              <p className="mt-2 text-sm text-slate-500 leading-relaxed">
+                {t('auth.passwordResetSent', { email })}
+              </p>
+              <button
+                id="btn-return-signin"
+                onClick={() => {
+                  setMode('signin');
+                  setForgotSent(false);
+                }}
+                className="mt-6 w-full flex justify-center py-2 px-4 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none transition-colors cursor-pointer"
+              >
+                {t('auth.backToSignIn')}
+              </button>
+            </div>
+          ) : (
+            <form
+              id="auth-form"
+              onSubmit={
+                mode === 'signin'
+                  ? handleSignIn
+                  : mode === 'signup'
+                  ? handleSignUp
+                  : handleForgotPassword
+              }
+              className="space-y-5"
+            >
+              {mode === 'signup' && (
+                <div>
+                  <label htmlFor="full-name" className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    {t('auth.fullNameLabel')}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      id="full-name"
+                      name="fullName"
+                      type="text"
+                      required
+                      placeholder={t('auth.fullNamePlaceholder')}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                  {t('auth.emailLabel')}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder={t('auth.emailPlaceholder')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                  />
+                </div>
+              </div>
+
+              {mode !== 'forgot' && (
+                <div>
+                  <label htmlFor="password" className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    {t('auth.passwordLabel')}
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-slate-400" />
+                    </div>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                      required
+                      placeholder={t('auth.passwordPlaceholder')}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="block w-full pl-10 pr-10 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                    />
+                    <button
+                      id="toggle-show-password"
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {mode === 'signup' && (
+                <div>
+                  <label htmlFor="currency-pref" className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    {t('auth.preferredCurrencyLabel')}
+                  </label>
+                  <div>
+                    <select
+                      id="currency-pref"
+                      name="currency"
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="block w-full py-2 px-3 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                    >
+                      <option value="$">USD ($)</option>
+                      <option value="€">EUR (€)</option>
+                      <option value="£">GBP (£)</option>
+                      <option value="¥">JPY (¥)</option>
+                      <option value="₹">INR (₹)</option>
+                      <option value="₪">ILS (₪)</option>
+                      <option value="Ks">MMK (Ks)</option>
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {mode === 'signin' && (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm">
+                    <button
+                      id="btn-forgot-password-link"
+                      type="button"
+                      onClick={() => {
+                        setMode('forgot');
+                        setForgotSent(false);
+                      }}
+                      className="font-medium text-[#4F46E5] hover:text-[#4338CA] transition-colors cursor-pointer"
+                    >
+                      {t('auth.forgotPasswordLink')}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <button
+                  id="btn-submit-auth"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex justify-center py-2 px-4 rounded-lg text-sm font-medium text-white bg-[#4F46E5] hover:bg-[#4338CA] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                >
+                  {loading ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : mode === 'signin' ? (
+                    t('auth.signInButton')
+                  ) : mode === 'signup' ? (
+                    t('auth.signUpButton')
+                  ) : (
+                    t('auth.sendResetLinkButton')
+                  )}
+                </button>
+              </div>
+
+              {mode !== 'forgot' && (
+                <>
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                      <div className="w-full border-t border-slate-100"></div>
+                    </div>
+                    <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
+                      <span className="bg-white px-2 text-slate-400 font-medium">{t('auth.continueWith')}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    id="btn-google-auth"
+                    type="button"
+                    disabled={loading}
+                    onClick={handleGoogleSignIn}
+                    className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 focus:outline-none disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    <Chrome className="w-4 h-4 text-[#4F46E5]" />
+                    {t('auth.googleSignIn')}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+}

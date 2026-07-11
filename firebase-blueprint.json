@@ -1,0 +1,130 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "photoURL": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string"
+        },
+        "monthlyIncomeGoal": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "fullName",
+        "currency"
+      ]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "User-defined category for financial tracking",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "income",
+            "expense"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ]
+    },
+    "Income": {
+      "title": "Income",
+      "description": "An income record",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "amount",
+        "category",
+        "date"
+      ]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "An expense record",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "category": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "amount",
+        "category",
+        "date"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "User profiles"
+    },
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": {
+        "$ref": "#/entities/Category"
+      },
+      "description": "User-specific categories"
+    },
+    "/users/{userId}/incomes/{incomeId}": {
+      "schema": {
+        "$ref": "#/entities/Income"
+      },
+      "description": "User-specific income entries"
+    },
+    "/users/{userId}/expenses/{expenseId}": {
+      "schema": {
+        "$ref": "#/entities/Expense"
+      },
+      "description": "User-specific expense entries"
+    }
+  }
+}
