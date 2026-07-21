@@ -98,7 +98,7 @@ export default function App() {
               email: currentUser.email || '',
               fullName: data.fullName || 'User',
               photoURL: data.photoURL || '',
-              currency: data.currency || '$',
+              currency: data.currency || 'Ks',
               monthlyIncomeGoal: data.monthlyIncomeGoal !== undefined ? data.monthlyIncomeGoal : null,
             });
           } else {
@@ -106,7 +106,7 @@ export default function App() {
             const fallbackProfile = {
               fullName: currentUser.displayName || 'Finance Member',
               photoURL: currentUser.photoURL || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(currentUser.email || 'User')}`,
-              currency: '$',
+              currency: 'Ks',
               monthlyIncomeGoal: null,
               email: currentUser.email || '',
             };
@@ -533,7 +533,7 @@ export default function App() {
         />
 
         {/* Scrollable layout sandbox */}
-        <main className="flex-1 overflow-y-auto px-8 py-8 scrollbar-thin">
+        <main className="flex-1 overflow-y-auto px-4 py-4 md:px-8 md:py-8 scrollbar-thin">
           <div className="mx-auto w-full max-w-7xl">
             {currentTab === 'dashboard' && (
               <Dashboard

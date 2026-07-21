@@ -22,7 +22,7 @@ export default function Auth({ onShowToast }: AuthProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [currency, setCurrency] = useState('$');
+  const [currency, setCurrency] = useState('Ks');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
@@ -397,30 +397,7 @@ export default function Auth({ onShowToast }: AuthProps) {
                 </div>
               )}
 
-              {mode === 'signup' && (
-                <div>
-                  <label htmlFor="currency-pref" className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
-                    {t('auth.preferredCurrencyLabel')}
-                  </label>
-                  <div>
-                    <select
-                      id="currency-pref"
-                      name="currency"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className="block w-full py-2 px-3 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
-                    >
-                      <option value="$">USD ($)</option>
-                      <option value="€">EUR (€)</option>
-                      <option value="£">GBP (£)</option>
-                      <option value="¥">JPY (¥)</option>
-                      <option value="₹">INR (₹)</option>
-                      <option value="₪">ILS (₪)</option>
-                      <option value="Ks">MMK (Ks)</option>
-                    </select>
-                  </div>
-                </div>
-              )}
+
 
               {mode === 'signin' && (
                 <div className="flex items-center justify-between">

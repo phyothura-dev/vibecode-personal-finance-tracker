@@ -24,7 +24,7 @@ export default function TransactionHistory({
   profile,
 }: TransactionHistoryProps) {
   const { t } = useLanguage();
-  const currencySymbol = profile?.currency || '$';
+  const currencySymbol = 'Ks ';
 
   // Filters State
   const [search, setSearch] = useState('');

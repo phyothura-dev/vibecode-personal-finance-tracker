@@ -19,7 +19,7 @@ export default function ProfileManager({
   // Local Form state
   const [fullName, setFullName] = useState(profile?.fullName || '');
   const [photoURL, setPhotoURL] = useState(profile?.photoURL || '');
-  const [currency, setCurrency] = useState(profile?.currency || '$');
+  const [currency, setCurrency] = useState('Ks');
   const [monthlyGoal, setMonthlyGoal] = useState(
     profile?.monthlyIncomeGoal ? profile.monthlyIncomeGoal.toString() : ''
   );
@@ -72,13 +72,13 @@ export default function ProfileManager({
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Profile Form */}
-      <div className="bg-white rounded-xl border border-slate-200">
-        <div className="border-b border-slate-100 bg-[#F8FAFC] p-6">
-          <h3 className="font-semibold text-[#111827] text-lg">{t('profile.title')}</h3>
-          <p className="text-xs text-slate-500 mt-1">{t('profile.description')}</p>
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="border-b border-slate-100 pb-4 mb-6">
+          <h3 className="font-semibold text-slate-800 text-sm">{t('profile.title')}</h3>
+          <p className="text-xs text-slate-400 mt-1">{t('profile.description')}</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Avatar picker */}
           <div>
             <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-3">
@@ -143,31 +143,7 @@ export default function ProfileManager({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Currency */}
-              <div>
-                <label htmlFor="p-currency" className="block text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">
-                  {t('profile.defaultCurrencyLabel')}
-                </label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                  <select
-                    id="p-currency"
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    className="block w-full pl-9 pr-3 py-2 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
-                  >
-                    <option value="$">USD ($)</option>
-                    <option value="€">EUR (€)</option>
-                    <option value="£">GBP (£)</option>
-                    <option value="¥">JPY (¥)</option>
-                    <option value="₹">INR (₹)</option>
-                    <option value="₪">ILS (₪)</option>
-                    <option value="Ks">MMK (Ks)</option>
-                  </select>
-                </div>
-              </div>
-
+            <div>
               {/* Monthly Income Goal */}
               <div>
                 <label htmlFor="p-monthlyGoal" className="block text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">

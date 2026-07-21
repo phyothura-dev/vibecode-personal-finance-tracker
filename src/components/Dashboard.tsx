@@ -34,7 +34,7 @@ interface DashboardProps {
 
 export default function Dashboard({ incomes, expenses, profile, onChangeTab }: DashboardProps) {
   const { t } = useLanguage();
-  const currencySymbol = profile?.currency || '$';
+  const currencySymbol = 'Ks ';
 
   // 1. Calculations
   const totals = useMemo(() => {
@@ -152,11 +152,11 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
       {/* Overview Metric Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         {/* Balance Card */}
-        <div id="card-total-balance" className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6">
+        <div id="card-total-balance" className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6" style={{ paddingLeft: '21px' }}>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalBalance')}</p>
-              <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
                 {totals.balance < 0 ? '-' : ''}
                 {currencySymbol}
                 {Math.abs(totals.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -168,7 +168,7 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-xs text-slate-500">
+          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
             <span className={totals.balance >= 0 ? 'text-[#059669] font-semibold' : 'text-[#DC2626] font-semibold'}>
               {totals.balance >= 0 ? t('dashboard.safe') : t('dashboard.deficit')}
             </span>
@@ -181,7 +181,7 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalIncome')}</p>
-              <h3 className="text-2xl font-bold text-[#059669] tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#059669] tracking-tight">
                 {currencySymbol}
                 {totals.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h3>
@@ -190,7 +190,7 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-xs text-slate-500">
+          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
             <button
               id="dash-link-add-income"
               onClick={() => onChangeTab('incomes')}
@@ -208,7 +208,7 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
           <div className="flex items-center justify-between">
             <div>
               <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalExpenses')}</p>
-              <h3 className="text-2xl font-bold text-[#DC2626] tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold text-[#DC2626] tracking-tight">
                 {currencySymbol}
                 {totals.totalExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h3>
@@ -217,7 +217,7 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
               <TrendingDown className="h-5 w-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-xs text-slate-500">
+          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
             <button
               id="dash-link-add-expense"
               onClick={() => onChangeTab('expenses')}

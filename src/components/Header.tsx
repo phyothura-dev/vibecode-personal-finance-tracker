@@ -37,7 +37,7 @@ export default function Header({
   };
 
   // Safe checks for currency
-  const currencySymbol = profile?.currency || '$';
+  const currencySymbol = 'Ks ';
   const monthlyGoal = profile?.monthlyIncomeGoal;
   const isGoalSet = monthlyGoal && monthlyGoal > 0;
   const goalProgressPercent = isGoalSet
@@ -47,7 +47,7 @@ export default function Header({
   return (
     <header
       id="app-header"
-      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-8"
+      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-4 md:px-8"
     >
       {/* Mobile Menu & Page Title */}
       <div className="flex items-center gap-4">
@@ -111,12 +111,6 @@ export default function Header({
             </div>
           </div>
         )}
-
-        {/* Currency Badge */}
-        <div id="currency-badge" className="flex items-center gap-1.5 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-medium">
-          <span className="text-[10px] uppercase text-slate-400">{t('header.currency')}:</span>
-          <span className="font-semibold">{profile?.currency || '$'}</span>
-        </div>
       </div>
     </header>
   );

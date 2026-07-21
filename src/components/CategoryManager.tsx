@@ -118,19 +118,13 @@ export default function CategoryManager({
 
   return (
     <div className="space-y-6">
-      {/* Informative Header Alert banner */}
-      <div className="flex gap-3 bg-[#EEF2FF] border border-indigo-100 p-4.5 rounded-xl">
-        <AlertCircle className="w-5 h-5 text-[#4F46E5] flex-shrink-0 mt-0.5" />
-        <div>
-          <h4 className="font-semibold text-[#4F46E5] text-sm">{t('categories.bannerTitle')}</h4>
-          <p className="text-xs text-indigo-950 mt-1 leading-relaxed opacity-90">
-            {t('categories.bannerDescription')}
-          </p>
-        </div>
-      </div>
-
       {/* Main card */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden p-6">
+        <div className="mb-6">
+          <h3 className="font-semibold text-slate-800 text-sm">{t('categories.bannerTitle')}</h3>
+          <p className="text-xs text-slate-400 mt-1">{t('categories.bannerDescription')}</p>
+        </div>
+
         {/* Toggle tabs */}
         <div className="flex border-b border-slate-200 mb-6">
           <button
