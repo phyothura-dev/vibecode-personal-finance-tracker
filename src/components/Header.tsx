@@ -64,7 +64,7 @@ export default function Header({
       </div>
 
       {/* Stats/Badges Row */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Language Switcher EN | MM */}
         <div id="language-switcher" className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50 text-[11px] font-semibold h-7.5">
           <button

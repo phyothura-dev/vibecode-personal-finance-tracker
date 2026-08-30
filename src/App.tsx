@@ -524,7 +524,7 @@ export default function App() {
       />
 
       {/* Main content frame */}
-      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0 relative">
         <Header
           currentTab={currentTab}
           profile={profile}

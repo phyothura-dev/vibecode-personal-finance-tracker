@@ -1,4 +1,4 @@
-import { LayoutDashboard, ArrowUpRight, ArrowDownRight, FolderTree, ArrowLeftRight, UserCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, ArrowUpRight, ArrowDownRight, FolderTree, ArrowLeftRight, UserCircle, LogOut, Wallet } from 'lucide-react';
 import { UserProfile } from '../types';
 import { useLanguage } from '../lib/LanguageContext';
 
@@ -54,11 +54,18 @@ export default function Sidebar({
         }`}
       >
         {/* Header/Logo */}
-        <div className="flex h-16 items-center gap-2.5 px-6 border-b border-slate-200">
-          <div style={{ width: '24px', height: '24px', background: '#4F46E5', borderRadius: '6px' }} />
-          <span className="text-[20px] font-bold text-[#4F46E5] tracking-tight font-sans">
-            FinTrack
-          </span>
+        <div id="sidebar-header" className="flex h-16 items-center gap-3 px-6 border-b border-slate-200 bg-white">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white shadow-sm shadow-indigo-500/25">
+            <Wallet className="h-5 w-5 stroke-[2.2]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[17px] font-bold text-slate-900 tracking-tight leading-tight font-sans">
+              SmartWallet
+            </span>
+            <span className="text-[10px] font-semibold text-indigo-600 tracking-wide uppercase">
+              Finance Hub
+            </span>
+          </div>
         </div>
 
         {/* Navigation Items */}

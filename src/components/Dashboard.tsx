@@ -3,12 +3,10 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  PlusCircle,
   Folder,
   ArrowRight,
   Activity,
-  Calendar,
-  AlertCircle
+  Calendar
 } from 'lucide-react';
 import {
   BarChart,
@@ -150,83 +148,55 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
   return (
     <div className="space-y-6">
       {/* Overview Metric Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         {/* Balance Card */}
-        <div id="card-total-balance" className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6" style={{ paddingLeft: '21px' }}>
+        <div id="card-total-balance" className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition-all">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalBalance')}</p>
-              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                {totals.balance < 0 ? '-' : ''}
-                {currencySymbol}
-                {Math.abs(totals.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-            </div>
-            <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-white ${
-              totals.balance >= 0 ? 'bg-indigo-600' : 'bg-rose-600'
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.totalBalance')}</span>
+            <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+              totals.balance >= 0 ? 'bg-indigo-50 text-indigo-600' : 'bg-rose-50 text-rose-600'
             }`}>
-              <DollarSign className="h-5 w-5" />
+              <DollarSign className="h-4.5 w-4.5" />
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
-            <span className={totals.balance >= 0 ? 'text-[#059669] font-semibold' : 'text-[#DC2626] font-semibold'}>
-              {totals.balance >= 0 ? t('dashboard.safe') : t('dashboard.deficit')}
-            </span>
-            <span className="ml-2">{t('dashboard.netPosition')}</span>
+          <div className="mt-3">
+            <h3 className="text-2xl font-bold tracking-tight text-slate-900">
+              {totals.balance < 0 ? '-' : ''}
+              {currencySymbol}
+              {Math.abs(totals.balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
           </div>
         </div>
 
         {/* Income Card */}
-        <div id="card-total-income" className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6">
+        <div id="card-total-income" className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition-all">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalIncome')}</p>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#059669] tracking-tight">
-                {currencySymbol}
-                {totals.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white">
-              <TrendingUp className="h-5 w-5" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.totalIncome')}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+              <TrendingUp className="h-4.5 w-4.5" />
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
-            <button
-              id="dash-link-add-income"
-              onClick={() => onChangeTab('incomes')}
-              className="flex items-center gap-1 font-semibold text-[#059669] hover:underline cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" /> {t('dashboard.addIncomeShortcut')}
-            </button>
-            <span className="mx-2 text-slate-300">•</span>
-            <span>{t('dashboard.allEntries')}</span>
+          <div className="mt-3">
+            <h3 className="text-2xl font-bold tracking-tight text-emerald-600">
+              {currencySymbol}
+              {totals.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
           </div>
         </div>
 
         {/* Expenses Card */}
-        <div id="card-total-expenses" className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6">
+        <div id="card-total-expenses" className="rounded-xl border border-slate-200 bg-white p-5 shadow-xs transition-all">
           <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[13px] font-medium text-[#6B7280] mb-2">{t('dashboard.totalExpenses')}</p>
-              <h3 className="text-xl sm:text-2xl font-bold text-[#DC2626] tracking-tight">
-                {currencySymbol}
-                {totals.totalExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500 text-white">
-              <TrendingDown className="h-5 w-5" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{t('dashboard.totalExpenses')}</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+              <TrendingDown className="h-4.5 w-4.5" />
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-y-1 text-xs text-slate-500">
-            <button
-              id="dash-link-add-expense"
-              onClick={() => onChangeTab('expenses')}
-              className="flex items-center gap-1 font-semibold text-[#DC2626] hover:underline cursor-pointer"
-            >
-              <PlusCircle className="h-3.5 w-3.5" /> {t('dashboard.addExpenseShortcut')}
-            </button>
-            <span className="mx-2 text-slate-300">•</span>
-            <span>{t('dashboard.allEntries')}</span>
+          <div className="mt-3">
+            <h3 className="text-2xl font-bold tracking-tight text-rose-600">
+              {currencySymbol}
+              {totals.totalExpense.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h3>
           </div>
         </div>
       </div>
@@ -234,17 +204,17 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
       {/* Visual Charts Section */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Monthly Income vs Expense Chart */}
-        <div id="card-monthly-chart" className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2 flex flex-col h-[380px]">
+        <div id="card-monthly-chart" className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2 flex flex-col h-[360px]">
           <div className="mb-4 flex items-center justify-between">
-            <h4 className="font-semibold text-[#111827] text-[15px]">{t('dashboard.sixMonthTrend')}</h4>
+            <h4 className="font-semibold text-slate-900 text-sm">{t('dashboard.sixMonthTrend')}</h4>
             <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 bg-[#4F46E5] rounded-sm" />
-                <span className="text-slate-500 font-medium">{t('transactions.incomeType')}</span>
+                <span className="text-slate-600 font-medium">{t('transactions.incomeType')}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <div className="w-2.5 h-2.5 bg-rose-400 rounded-sm" />
-                <span className="text-slate-500 font-medium">{t('transactions.expenseType')}</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-rose-500 rounded-sm" />
+                <span className="text-slate-600 font-medium">{t('transactions.expenseType')}</span>
               </div>
             </div>
           </div>
@@ -274,8 +244,8 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
         </div>
 
         {/* Expenses by Category Pie Chart */}
-        <div id="card-category-chart" className="rounded-xl border border-slate-200 bg-white p-6 flex flex-col h-[380px]">
-          <h4 className="mb-4 font-semibold text-[#111827] text-[15px]">{t('dashboard.spendingDistribution')}</h4>
+        <div id="card-category-chart" className="rounded-xl border border-slate-200 bg-white p-6 flex flex-col h-[360px]">
+          <h4 className="mb-4 font-semibold text-slate-900 text-sm">{t('dashboard.spendingDistribution')}</h4>
           <div className="flex-1 min-h-0 flex flex-col justify-center">
             {expenses.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center p-4">
@@ -284,15 +254,15 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
               </div>
             ) : (
               <>
-                <div className="h-44 w-full relative">
+                <div className="h-40 w-full relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={categoryChartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={55}
-                        outerRadius={75}
+                        innerRadius={50}
+                        outerRadius={70}
                         paddingAngle={3}
                         dataKey="value"
                       >
@@ -308,16 +278,16 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
                   </ResponsiveContainer>
                   {/* Center Text */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-1">
-                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{t('dashboard.totalSpent')}</span>
-                    <span className="text-lg font-bold text-slate-800">
+                    <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">{t('dashboard.totalSpent')}</span>
+                    <span className="text-base font-bold text-slate-800">
                       {currencySymbol}
                       {totals.totalExpense.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     </span>
                   </div>
                 </div>
 
-                {/* Simplified Scrollable Categorized list */}
-                <div className="mt-4 flex-1 overflow-y-auto space-y-2 pr-1 max-h-36 scrollbar-thin">
+                {/* Categorized list */}
+                <div className="mt-3 flex-1 overflow-y-auto space-y-2 pr-1 max-h-32 scrollbar-thin">
                   {categoryChartData.slice(0, 4).map((entry, index) => (
                     <div key={entry.name} className="flex items-center justify-between text-xs font-medium">
                       <div className="flex items-center gap-1.5 min-w-0">
@@ -329,11 +299,6 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
                       </div>
                     </div>
                   ))}
-                  {categoryChartData.length > 4 && (
-                    <p className="text-[10px] text-center text-slate-400 font-medium">
-                      {t('dashboard.moreCategories', { count: categoryChartData.length - 4 })}
-                    </p>
-                  )}
                 </div>
               </>
             )}
@@ -341,149 +306,64 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
         </div>
       </div>
 
-      {/* Recent Transactions & Bottom overview */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Recent Transactions Panel */}
-        <div id="card-recent-transactions" className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2 flex flex-col">
-          <div className="mb-4 flex items-center justify-between">
-            <h4 className="font-semibold text-[#111827] text-[15px]">{t('dashboard.recentActivities')}</h4>
-            <button
-              id="dash-btn-view-all-tx"
-              onClick={() => onChangeTab('transactions')}
-              className="flex items-center gap-1 text-xs font-medium text-[#4F46E5] hover:underline cursor-pointer"
-            >
-              {t('dashboard.viewHistory')} <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          <div className="flex-1">
-            {recentTransactions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-10">
-                <Calendar className="h-10 w-10 text-slate-300 mb-2" />
-                <p className="text-sm text-slate-500">{t('dashboard.noTransactionsYet')}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100 overflow-hidden">
-                {recentTransactions.map((tx) => (
-                  <div key={`${tx.type}-${tx.id}`} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg font-bold ${
-                        tx.type === 'income'
-                          ? 'bg-emerald-50 text-[#059669]'
-                          : 'bg-rose-50/70 text-[#DC2626]'
-                      }`}>
-                        {tx.type === 'income' ? <TrendingUp className="h-4.5 w-4.5" /> : <TrendingDown className="h-4.5 w-4.5" />}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-800">{tx.title}</p>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
-                          <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-medium text-slate-600 uppercase">
-                            {tx.category}
-                          </span>
-                          <span>•</span>
-                          <span>{tx.date}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className={`text-sm font-bold ${tx.type === 'income' ? 'text-[#059669]' : 'text-slate-800'}`}>
-                        {tx.type === 'income' ? '+' : '-'}
-                        {currencySymbol}
-                        {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                      {tx.note && (
-                        <p className="truncate text-[10px] text-slate-400 max-w-[150px] mt-0.5">
-                          {tx.note}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Recent Transactions */}
+      <div id="card-recent-transactions" className="rounded-xl border border-slate-200 bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h4 className="font-semibold text-slate-900 text-sm">{t('dashboard.recentActivities')}</h4>
+          <button
+            id="dash-btn-view-all-tx"
+            onClick={() => onChangeTab('transactions')}
+            className="flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
+          >
+            {t('dashboard.viewHistory')} <ArrowRight className="h-3.5 w-3.5" />
+          </button>
         </div>
 
-        {/* Financial Health Tips or Mini Summary */}
-        <div id="card-financial-health" className="rounded-xl border border-slate-200 bg-white p-6 flex flex-col justify-between">
-          <div>
-            <h4 className="font-semibold text-[#111827] text-[15px] mb-3 flex items-center gap-2">
-              <Activity className="w-4.5 h-4.5 text-[#4F46E5]" />
-              {t('dashboard.financialHealth')}
-            </h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {t('dashboard.financialHealthDesc')}
-            </p>
-
-            <div className="mt-4 space-y-4">
-              <div>
-                <div className="flex justify-between text-xs font-medium text-slate-600 mb-1.5">
-                  <span>{t('dashboard.savingsRate')}</span>
-                  <span>
-                    {totals.totalIncome > 0
-                      ? `${Math.round((totals.balance / totals.totalIncome) * 100)}%`
-                      : '0%'}
-                  </span>
-                </div>
-                <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden relative">
-                  <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      totals.balance >= 0 ? 'bg-[#059669]' : 'bg-[#DC2626]'
-                    }`}
-                    style={{
-                      width: `${
-                        totals.totalIncome > 0
-                          ? Math.max(0, Math.min(100, Math.round((totals.balance / totals.totalIncome) * 100)))
-                          : 0
-                      }%`
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between text-xs font-medium text-slate-600 mb-1.5">
-                  <span>{t('dashboard.expensesVsIncome')}</span>
-                  <span>
-                    {totals.totalIncome > 0
-                      ? `${Math.round((totals.totalExpense / totals.totalIncome) * 100)}%`
-                      : '0%'}
-                  </span>
-                </div>
-                <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden relative">
-                  <div
-                    className="bg-[#4F46E5] h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${
-                        totals.totalIncome > 0
-                          ? Math.min(100, Math.round((totals.totalExpense / totals.totalIncome) * 100))
-                          : 0
-                      }%`
-                    }}
-                  />
-                </div>
-              </div>
+        <div>
+          {recentTransactions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center text-center py-8">
+              <Calendar className="h-9 w-9 text-slate-300 mb-2" />
+              <p className="text-sm text-slate-500">{t('dashboard.noTransactionsYet')}</p>
             </div>
-          </div>
-
-          <div className="mt-5 p-3.5 bg-slate-50 border border-slate-100 rounded-lg flex gap-2 items-start">
-            <AlertCircle className="w-4.5 h-4.5 text-[#4F46E5] flex-shrink-0 mt-0.5" />
-            <p className="text-[11px] text-slate-500 leading-normal">
-              {totals.balance < 0 ? (
-                <span className="font-semibold text-[#DC2626]">
-                  {t('dashboard.warningExpensesExceed')}
-                </span>
-              ) : totals.totalIncome === 0 ? (
-                <span>{t('dashboard.logToAnalyze')}</span>
-              ) : totals.balance / totals.totalIncome > 0.2 ? (
-                <span className="font-semibold text-[#059669]">
-                  {t('dashboard.savingMoreThan20')}
-                </span>
-              ) : (
-                <span>{t('dashboard.savingHealthy')}</span>
-              )}
-            </p>
-          </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {recentTransactions.map((tx) => (
+                <div key={`${tx.type}-${tx.id}`} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg font-bold ${
+                      tx.type === 'income'
+                        ? 'bg-emerald-50 text-emerald-600'
+                        : 'bg-rose-50 text-rose-600'
+                    }`}>
+                      {tx.type === 'income' ? <TrendingUp className="h-4.5 w-4.5" /> : <TrendingDown className="h-4.5 w-4.5" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-800">{tx.title}</p>
+                      <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
+                        <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-medium text-slate-600 uppercase">
+                          {tx.category}
+                        </span>
+                        <span>•</span>
+                        <span>{tx.date}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className={`text-sm font-bold ${tx.type === 'income' ? 'text-emerald-600' : 'text-slate-800'}`}>
+                      {tx.type === 'income' ? '+' : '-'}
+                      {currencySymbol}
+                      {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    {tx.note && (
+                      <p className="truncate text-[10px] text-slate-400 max-w-[150px] mt-0.5">
+                        {tx.note}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

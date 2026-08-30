@@ -1,0 +1,22 @@
+{
+  "short_name": "SmartWallet",
+  "name": "SmartWallet - Personal Finance Manager",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=SmartWallet",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/identicon/svg?seed=FinTrack",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#4F46E5",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "Smart income and expense tracking mobile web app."
+}
