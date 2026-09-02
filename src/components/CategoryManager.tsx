@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Check, X, AlertCircle } from 'lucide-react';
+import { Trash2, Edit3, Check, X } from 'lucide-react';
 import { Category, CategoryType } from '../types';
-import { useLanguage } from '../lib/LanguageContext';
 
 interface CategoryManagerProps {
   categories: Category[];
@@ -18,8 +17,6 @@ export default function CategoryManager({
   onDeleteCategory,
   onShowToast,
 }: CategoryManagerProps) {
-  const { t } = useLanguage();
-
   // Tabs: 'income' or 'expense'
   const [activeType, setActiveType] = useState<CategoryType>('income');
   
@@ -39,13 +36,13 @@ export default function CategoryManager({
   const filteredCategories = categories.filter((cat) => cat.type === activeType);
 
   const getTypeName = (type: CategoryType) => {
-    return type === 'income' ? t('transactions.incomeType') : t('transactions.expenseType');
+    return type === 'income' ? 'ဝင်ငွေ' : 'ထွက်ငွေ';
   };
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName.trim()) {
-      onShowToast(t('categories.nameNotEmpty'), 'error');
+      onShowToast('ခေါင်းစဉ်အုပ်စု အမည် ထည့်သွင်းပေးပါ။', 'error');
       return;
     }
 
@@ -54,18 +51,18 @@ export default function CategoryManager({
       (cat) => cat.type === activeType && cat.name.toLowerCase() === newCatName.trim().toLowerCase()
     );
     if (duplicate) {
-      onShowToast(t('categories.duplicateError', { type: getTypeName(activeType), name: newCatName.trim() }), 'error');
+      onShowToast(`"${newCatName.trim()}" အမည်ဖြင့် ${getTypeName(activeType)} ခေါင်းစဉ်အုပ်စု ရှိပြီးသားဖြစ်ပါသည်။`, 'error');
       return;
     }
 
     setIsAdding(true);
     try {
       await onAddCategory(newCatName.trim(), activeType);
-      onShowToast(t('categories.createSuccess', { name: newCatName.trim() }), 'success');
+      onShowToast(`"${newCatName.trim()}" ခေါင်းစဉ်အုပ်စု ထည့်သွင်းပြီးပါပြီ။`, 'success');
       setNewCatName('');
     } catch (err) {
       console.error(err);
-      onShowToast(t('categories.createFail'), 'error');
+      onShowToast('ခေါင်းစဉ်အုပ်စု ထည့်သွင်းခြင်း မအောင်မြင်ပါ။', 'error');
     } finally {
       setIsAdding(false);
     }
@@ -78,7 +75,7 @@ export default function CategoryManager({
 
   const handleSaveRename = async (id: string) => {
     if (!editingName.trim()) {
-      onShowToast(t('categories.nameNotEmpty'), 'error');
+      onShowToast('ခေါင်းစဉ်အုပ်စု အမည် ထည့်သွင်းပေးပါ။', 'error');
       return;
     }
 
@@ -87,18 +84,18 @@ export default function CategoryManager({
       (cat) => cat.id !== id && cat.type === activeType && cat.name.toLowerCase() === editingName.trim().toLowerCase()
     );
     if (duplicate) {
-      onShowToast(t('categories.duplicateError', { type: getTypeName(activeType), name: editingName.trim() }), 'error');
+      onShowToast(`"${editingName.trim()}" အမည်ဖြင့် ${getTypeName(activeType)} ခေါင်းစဉ်အုပ်စု ရှိပြီးသားဖြစ်ပါသည်။`, 'error');
       return;
     }
 
     setIsSavingEdit(true);
     try {
       await onRenameCategory(id, editingName.trim());
-      onShowToast(t('categories.renameSuccess'), 'success');
+      onShowToast('ခေါင်းစဉ်အုပ်စု အမည် ပြင်ဆင်ပြီးပါပြီ။', 'success');
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      onShowToast(t('categories.renameFail'), 'error');
+      onShowToast('အမည်ပြင်ဆင်ခြင်း မအောင်မြင်ပါ။', 'error');
     } finally {
       setIsSavingEdit(false);
     }
@@ -107,10 +104,10 @@ export default function CategoryManager({
   const handleDeleteCategory = async (id: string) => {
     try {
       await onDeleteCategory(id);
-      onShowToast(t('categories.deleteSuccess'), 'success');
+      onShowToast('ခေါင်းစဉ်အုပ်စု ဖျက်ပြီးပါပြီ။', 'success');
     } catch (err) {
       console.error(err);
-      onShowToast(t('categories.deleteFail'), 'error');
+      onShowToast('ခေါင်းစဉ်အုပ်စု ဖျက်ခြင်း မအောင်မြင်ပါ။', 'error');
     } finally {
       setDeletingId(null);
     }
@@ -119,10 +116,10 @@ export default function CategoryManager({
   return (
     <div className="space-y-6">
       {/* Main card */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden p-6">
-        <div className="mb-6">
-          <h3 className="font-semibold text-slate-800 text-sm">{t('categories.bannerTitle')}</h3>
-          <p className="text-xs text-slate-400 mt-1">{t('categories.bannerDescription')}</p>
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden p-4 sm:p-6">
+        <div className="mb-5 sm:mb-6">
+          <h3 className="font-semibold text-slate-800 text-sm">ခေါင်းစဉ်အုပ်စု စီမံခန့်ခွဲမှု</h3>
+          <p className="text-xs text-slate-400 mt-1">ဝင်ငွေနှင့် ထွက်ငွေအတွက် ခေါင်းစဉ်အုပ်စုများကို စိတ်ကြိုက်ထည့်သွင်း၊ ပြင်ဆင် သို့မဟုတ် ဖျက်ပစ်နိုင်သည်</p>
         </div>
 
         {/* Toggle tabs */}
@@ -133,13 +130,13 @@ export default function CategoryManager({
               setActiveType('income');
               setEditingId(null);
             }}
-            className={`pb-3 text-sm font-medium border-b-2 px-4 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial pb-3 text-xs sm:text-sm font-medium border-b-2 px-3 sm:px-4 transition-all cursor-pointer text-center min-h-[40px] flex items-center justify-center ${
               activeType === 'income'
-                ? 'border-[#4F46E5] text-[#4F46E5]'
+                ? 'border-[#4F46E5] text-[#4F46E5] font-semibold'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            {t('categories.incomeTab')}
+            ဝင်ငွေ ခေါင်းစဉ်များ
           </button>
           <button
             id="tab-expense-categories"
@@ -147,53 +144,53 @@ export default function CategoryManager({
               setActiveType('expense');
               setEditingId(null);
             }}
-            className={`pb-3 text-sm font-medium border-b-2 px-4 transition-all cursor-pointer ${
+            className={`flex-1 sm:flex-initial pb-3 text-xs sm:text-sm font-medium border-b-2 px-3 sm:px-4 transition-all cursor-pointer text-center min-h-[40px] flex items-center justify-center ${
               activeType === 'expense'
-                ? 'border-[#4F46E5] text-[#4F46E5]'
+                ? 'border-[#4F46E5] text-[#4F46E5] font-semibold'
                 : 'border-transparent text-slate-500 hover:text-slate-700'
             }`}
           >
-            {t('categories.expenseTab')}
+            ထွက်ငွေ ခေါင်းစဉ်များ
           </button>
         </div>
 
         {/* Create Form */}
-        <form onSubmit={handleAddCategory} className="flex gap-3 mb-6 max-w-md">
+        <form onSubmit={handleAddCategory} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-6 max-w-lg">
           <input
             id="category-input-name"
             type="text"
             required
-            placeholder={t('categories.inputPlaceholder', { type: getTypeName(activeType) })}
+            placeholder={`အသစ်ထည့်မည့် ${getTypeName(activeType)} ခေါင်းစဉ်အုပ်စု`}
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
-            className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-440 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+            className="flex-1 px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors min-h-[42px] sm:min-h-0"
           />
           <button
             id="btn-add-category"
             type="submit"
             disabled={isAdding}
-            className="rounded-lg bg-[#4F46E5] px-4 py-2 text-sm font-medium text-white hover:bg-[#4338CA] transition-colors focus:outline-none flex-shrink-0 cursor-pointer"
+            className="rounded-lg bg-[#4F46E5] px-4 py-2.5 sm:py-2 text-sm font-medium text-white hover:bg-[#4338CA] transition-colors focus:outline-none flex-shrink-0 cursor-pointer min-h-[42px] sm:min-h-0 flex items-center justify-center"
           >
-            {isAdding ? t('common.adding') : t('common.add')}
+            {isAdding ? 'ထည့်နေသည်...' : 'ထည့်မည်'}
           </button>
         </form>
 
         {/* Categories List */}
         <div className="space-y-2">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-            {t('categories.activeClassifications', { type: getTypeName(activeType) })}
+            လက်ရှိ {getTypeName(activeType)} ခေါင်းစဉ်အုပ်စုများ
           </h4>
           
           {filteredCategories.length === 0 ? (
             <div className="text-center py-8 text-slate-400 text-sm">
-              {t('categories.emptyGroup')}
+              ခေါင်းစဉ်အုပ်စု မရှိသေးပါ။ အပေါ်တွင် အသစ်ထည့်သွင်းနိုင်ပါသည်။
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
               {filteredCategories.map((cat) => (
                 <div
                   key={cat.id}
-                  className="flex items-center justify-between p-3.5 bg-slate-50/70 border border-slate-200 rounded-lg transition-all"
+                  className="flex items-center justify-between p-3 sm:p-3.5 bg-slate-50/70 border border-slate-200 rounded-lg transition-all"
                 >
                   {editingId === cat.id ? (
                     <div className="flex items-center gap-2 w-full">
@@ -203,42 +200,42 @@ export default function CategoryManager({
                         required
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-xs focus:ring-1 focus:ring-indigo-500"
+                        className="flex-1 px-3 py-1.5 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm sm:text-xs focus:ring-1 focus:ring-indigo-500 min-h-[38px] sm:min-h-0"
                       />
                       <button
                         id={`btn-save-rename-${cat.id}`}
                         onClick={() => handleSaveRename(cat.id)}
                         disabled={isSavingEdit}
-                        className="p-1 rounded-md text-emerald-600 hover:bg-emerald-50 focus:outline-none cursor-pointer"
+                        className="p-2 rounded-md text-emerald-600 hover:bg-emerald-50 focus:outline-none cursor-pointer"
                       >
                         <Check className="w-4 h-4" />
                       </button>
                       <button
                         id={`btn-cancel-rename-${cat.id}`}
                         onClick={() => setEditingId(null)}
-                        className="p-1 rounded-md text-slate-400 hover:bg-slate-200 focus:outline-none cursor-pointer"
+                        className="p-2 rounded-md text-slate-400 hover:bg-slate-200 focus:outline-none cursor-pointer"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
                     <>
-                      <span className="text-sm font-medium text-slate-800 truncate">{cat.name}</span>
+                      <span className="text-sm font-medium text-slate-800 truncate pr-2">{cat.name}</span>
                       
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         <button
                           id={`btn-start-rename-${cat.id}`}
                           onClick={() => handleStartEdit(cat)}
-                          title={t('common.edit')}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors focus:outline-none cursor-pointer"
+                          title="ပြင်ဆင်မည်"
+                          className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors focus:outline-none cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           id={`btn-trigger-delete-${cat.id}`}
                           onClick={() => setDeletingId(cat.id)}
-                          title={t('common.delete')}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus:outline-none cursor-pointer"
+                          title="ဖျက်မည်"
+                          className="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus:outline-none cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -262,9 +259,9 @@ export default function CategoryManager({
             </div>
             
             <div>
-              <h3 className="text-base font-semibold text-[#111827]">{t('categories.deleteConfirmTitle')}</h3>
+              <h3 className="text-base font-semibold text-[#111827]">ဤခေါင်းစဉ်အုပ်စုကို ဖျက်မည်မှာ သေချာပါသလား?</h3>
               <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                {t('categories.deleteConfirmDescription')}
+                ဤခေါင်းစဉ်အုပ်စုကို ဖျက်လိုက်ပါက စာရင်းမှ ဖယ်ရှားသွားမည်ဖြစ်ပါသည်။
               </p>
             </div>
 
@@ -274,14 +271,14 @@ export default function CategoryManager({
                 onClick={() => setDeletingId(null)}
                 className="flex-1 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                {t('common.cancel')}
+                မဖျက်တော့ပါ
               </button>
               <button
                 id="btn-delete-category-confirm"
                 onClick={() => handleDeleteCategory(deletingId)}
                 className="flex-1 py-2 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#B91C1C] transition-colors cursor-pointer"
               >
-                {t('categories.deleteButton')}
+                ဖျက်မည်
               </button>
             </div>
           </div>

@@ -254,11 +254,11 @@ export default function App() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      handleShowToast('Signed out successfully.', 'info');
+      handleShowToast('အကောင့်မှ အောင်မြင်စွာ ထွက်ပြီးပါပြီ။', 'info');
       setCurrentTab('dashboard');
     } catch (err) {
       console.error(err);
-      handleShowToast('Failed to sign out. Try again.', 'error');
+      handleShowToast('အကောင့်မှ ထွက်ခြင်း မအောင်မြင်ပါ။ ထပ်မံကြိုးစားကြည့်ပါ။', 'error');
     }
   };
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Trash2, Edit3, Calendar, AlertTriangle, X } from 'lucide-react';
 import { Income, Category, UserProfile } from '../types';
-import { useLanguage } from '../lib/LanguageContext';
 
 interface IncomeManagerProps {
   incomes: Income[];
@@ -22,7 +21,6 @@ export default function IncomeManager({
   onDeleteIncome,
   onShowToast,
 }: IncomeManagerProps) {
-  const { t } = useLanguage();
   const currencySymbol = 'Ks ';
 
   // State
@@ -66,20 +64,20 @@ export default function IncomeManager({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      onShowToast(t('incomes.fillFieldsError'), 'error');
+      onShowToast('ကျေးဇူးပြု၍ အချက်အလက်အားလုံး ပြည့်စုံစွာ ဖြည့်သွင်းပေးပါ။', 'error');
       return;
     }
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      onShowToast(t('incomes.amountPositiveError'), 'error');
+      onShowToast('ငွေပမာဏသည် သုညထက် ကြီးရပါမည်။', 'error');
       return;
     }
     if (!category) {
-      onShowToast(t('incomes.selectCategoryError'), 'error');
+      onShowToast('ကျေးဇူးပြု၍ အမျိုးအစား ရွေးချယ်ပေးပါ။', 'error');
       return;
     }
     if (!date) {
-      onShowToast(t('incomes.fillFieldsError'), 'error');
+      onShowToast('ကျေးဇူးပြု၍ အချက်အလက်အားလုံး ပြည့်စုံစွာ ဖြည့်သွင်းပေးပါ။', 'error');
       return;
     }
 
@@ -95,15 +93,15 @@ export default function IncomeManager({
 
       if (editingId) {
         await onEditIncome(editingId, dataPayload);
-        onShowToast(t('incomes.editSuccess'), 'success');
+        onShowToast('ဝင်ငွေမှတ်တမ်းကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။', 'success');
       } else {
         await onAddIncome(dataPayload);
-        onShowToast(t('incomes.addSuccess'), 'success');
+        onShowToast('ဝင်ငွေမှတ်တမ်းအသစ် အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။', 'success');
       }
       setIsOpenForm(false);
     } catch (err) {
       console.error(err);
-      onShowToast(t('incomes.fillFieldsError'), 'error');
+      onShowToast('အမှားဖြစ်ပေါ်ခဲ့ပါသည်။ ထပ်မံကြိုးစားပါ။', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -113,10 +111,10 @@ export default function IncomeManager({
     if (!deletingId) return;
     try {
       await onDeleteIncome(deletingId);
-      onShowToast(t('incomes.deleteSuccess'), 'success');
+      onShowToast('ဝင်ငွေမှတ်တမ်းကို ဖျက်ပစ်ပြီးပါပြီ။', 'success');
     } catch (err) {
       console.error(err);
-      onShowToast(t('incomes.deleteConfirmTitle'), 'error');
+      onShowToast('ဖျက်ပစ်ရာတွင် အမှားဖြစ်ပေါ်ခဲ့ပါသည်။', 'error');
     } finally {
       setDeletingId(null);
     }
@@ -127,17 +125,17 @@ export default function IncomeManager({
       {/* Main Income History Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         {/* Sleek integrated card header */}
-        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 px-4 sm:px-6 py-3.5 sm:py-4">
           <div>
-            <h3 className="font-semibold text-slate-800 text-sm">{t('incomes.title')}</h3>
-            <p className="text-[11px] text-slate-400 mt-0.5 hidden sm:block">{t('incomes.description')}</p>
+            <h3 className="font-semibold text-slate-800 text-sm">ဝင်ငွေ စီမံခန့်ခွဲမှု</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5 hidden sm:block">သင်၏ ရရှိသော ဝင်ငွေမှတ်တမ်းများကို ခြေရာခံပါ။</p>
           </div>
           <button
             id="btn-open-add-income"
             onClick={openAddModal}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#4F46E5] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#4338CA] transition-all focus:outline-none cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-[#4F46E5] px-4 py-2 sm:px-3.5 sm:py-1.5 text-xs font-semibold text-white hover:bg-[#4338CA] transition-all focus:outline-none cursor-pointer w-full sm:w-auto min-h-[40px] sm:min-h-0"
           >
-            <Plus className="w-3.5 h-3.5" /> {t('incomes.addNew')}
+            <Plus className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> ဝင်ငွေအသစ်ထည့်မည်
           </button>
         </div>
 
@@ -146,90 +144,143 @@ export default function IncomeManager({
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 mb-4">
               <Calendar className="w-7 h-7" />
             </div>
-            <h4 className="font-bold text-slate-800 text-lg">{t('incomes.emptyState')}</h4>
+            <h4 className="font-bold text-slate-800 text-lg">ဝင်ငွေမှတ်တမ်း မရှိသေးပါ</h4>
             <p className="text-sm text-slate-500 mt-1 max-w-sm">
-              {t('dashboard.noTransactionsYet')}
+              မှတ်တမ်းများ မရှိသေးပါ
             </p>
             <button
               id="btn-empty-state-add-income"
               onClick={openAddModal}
               className="mt-5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-[#4F46E5] hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              {t('incomes.addNew')}
+              ဝင်ငွေအသစ်ထည့်မည်
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
-                  <th className="py-3 px-6">{t('transactions.colTitle')}</th>
-                  <th className="py-3 px-4">{t('common.category')}</th>
-                  <th className="py-3 px-4">{t('common.date')}</th>
-                  <th className="py-3 px-4">{t('common.note')}</th>
-                  <th className="py-3 px-4 text-right">{t('common.amount')}</th>
-                  <th className="py-3 px-6 text-center">{t('common.actions')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {incomes
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors text-sm text-slate-700">
-                      <td className="py-4 px-6 font-semibold text-[#111827]">{item.title}</td>
-                      <td className="py-4 px-4">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-[#059669]">
-                          {item.category}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-slate-500 text-xs">{item.date}</td>
-                      <td className="py-4 px-4 max-w-[200px] truncate text-slate-500 text-xs">
-                        {item.note || <span className="text-slate-300 italic">{t('transactions.colNote')}</span>}
-                      </td>
-                      <td className="py-4 px-4 font-semibold text-[#059669] text-right">
-                        +{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-4 px-6 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            id={`btn-edit-income-${item.id}`}
-                            onClick={() => openEditModal(item)}
-                            title={t('common.edit')}
-                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors focus:outline-none cursor-pointer"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
-                          <button
-                            id={`btn-delete-income-${item.id}`}
-                            onClick={() => setDeletingId(item.id)}
-                            title={t('common.delete')}
-                            className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
+                    <th className="py-3 px-6">ခေါင်းစဉ်</th>
+                    <th className="py-3 px-4">အမျိုးအစား</th>
+                    <th className="py-3 px-4">ရက်စွဲ</th>
+                    <th className="py-3 px-4">မှတ်ချက်</th>
+                    <th className="py-3 px-4 text-right">ပမာဏ</th>
+                    <th className="py-3 px-6 text-center">လုပ်ဆောင်ချက်</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {incomes
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-50/50 transition-colors text-sm text-slate-700">
+                        <td className="py-4 px-6 font-semibold text-[#111827]">{item.title}</td>
+                        <td className="py-4 px-4">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-[#059669]">
+                            {item.category}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-slate-500 text-xs">{item.date}</td>
+                        <td className="py-4 px-4 max-w-[200px] truncate text-slate-500 text-xs">
+                          {item.note || <span className="text-slate-300 italic">-</span>}
+                        </td>
+                        <td className="py-4 px-4 font-semibold text-[#059669] text-right">
+                          +{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              id={`btn-edit-income-${item.id}`}
+                              onClick={() => openEditModal(item)}
+                              title="ပြင်ဆင်မည်"
+                              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors focus:outline-none cursor-pointer"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              id={`btn-delete-income-${item.id}`}
+                              onClick={() => setDeletingId(item.id)}
+                              title="ဖျက်မည်"
+                              className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {incomes
+                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                .map((item) => (
+                  <div key={item.id} className="p-4 space-y-2.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-900 text-sm break-words">{item.title}</p>
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-[#059669]">
+                            {item.category}
+                          </span>
+                          <span className="text-slate-400 text-xs">•</span>
+                          <span className="text-slate-500 text-xs">{item.date}</span>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className="font-bold text-[#059669] text-base">
+                          +{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {item.note && (
+                      <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2.5 italic break-words">
+                        {item.note}
+                      </p>
+                    )}
+
+                    <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                      <button
+                        id={`btn-edit-income-mobile-${item.id}`}
+                        onClick={() => openEditModal(item)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer min-h-[36px]"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" /> ပြင်ဆင်မည်
+                      </button>
+                      <button
+                        id={`btn-delete-income-mobile-${item.id}`}
+                        onClick={() => setDeletingId(item.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50/60 text-xs font-medium text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer min-h-[36px]"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> ဖျက်မည်
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </>
         )}
       </div>
 
       {/* Slide-over / Modal Form */}
       {isOpenForm && (
-        <div id="income-form-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/20 backdrop-blur-xs animate-fade-in" onClick={() => setIsOpenForm(false)} />
-          <div className="relative bg-white rounded-xl max-w-lg w-full p-6 border border-slate-200 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 shadow-lg">
+        <div id="income-form-modal" className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs animate-fade-in" onClick={() => setIsOpenForm(false)} />
+          <div className="relative bg-white rounded-t-2xl sm:rounded-xl max-w-lg w-full p-5 sm:p-6 border border-slate-200 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150 shadow-xl max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold text-[#111827]">
-                {editingId ? t('incomes.editTitle') : t('incomes.addNew')}
+                {editingId ? 'ဝင်ငွေမှတ်တမ်း ပြင်ဆင်ခြင်း' : 'ဝင်ငွေအသစ်ထည့်မည်'}
               </h3>
               <button
                 id="btn-close-income-modal"
                 onClick={() => setIsOpenForm(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 focus:outline-none cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 focus:outline-none cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -237,49 +288,49 @@ export default function IncomeManager({
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
-                  {t('transactions.colTitle')} *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                  ခေါင်းစဉ် *
                 </label>
                 <input
                   id="income-input-title"
                   type="text"
                   required
-                  placeholder={t('incomes.titlePlaceholder')}
+                  placeholder="ဥပမာ- လစဉ်လစာငွေ"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="block w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                  className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
-                    {t('common.amount')} ({currencySymbol}) *
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    ပမာဏ ({currencySymbol}) *
                   </label>
                   <input
                     id="income-input-amount"
                     type="number"
                     step="0.01"
                     required
-                    placeholder={t('incomes.amountPlaceholder')}
+                    placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="block w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                    className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
-                    {t('common.category')} *
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    အမျိုးအစား *
                   </label>
                   <select
                     id="income-input-category"
                     required
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="block w-full px-3 py-2 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                    className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
                   >
-                    <option value="" disabled>{t('incomes.categorySelect')}</option>
+                    <option value="" disabled>အမျိုးအစား ရွေးချယ်ပါ</option>
                     {incomeCategories.map((cat) => (
                       <option key={cat.id} value={cat.name}>
                         {cat.name}
@@ -290,8 +341,8 @@ export default function IncomeManager({
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
-                  {t('common.date')} *
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                  ရက်စွဲ *
                 </label>
                 <input
                   id="income-input-date"
@@ -299,21 +350,21 @@ export default function IncomeManager({
                   required
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="block w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors"
+                  className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors cursor-pointer"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium uppercase tracking-wider text-slate-500 mb-1.5">
-                  {t('common.note')}
+                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                  မှတ်ချက်
                 </label>
                 <textarea
                   id="income-input-note"
                   rows={3}
-                  placeholder={t('incomes.optionalDetails')}
+                  placeholder="မှတ်ချက် အသေးစိတ် (ရွေးချယ်ရန်)"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="block w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors resize-none"
+                  className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors resize-none"
                 />
               </div>
 
@@ -322,17 +373,17 @@ export default function IncomeManager({
                   id="btn-cancel-income-form"
                   type="button"
                   onClick={() => setIsOpenForm(false)}
-                  className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 sm:py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer min-h-[44px] sm:min-h-0"
                 >
-                  {t('common.cancel')}
+                  မလုပ်တော့ပါ
                 </button>
                 <button
                   id="btn-save-income-form"
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#4F46E5] text-sm font-medium text-white hover:bg-[#4338CA] transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  className="px-5 py-2.5 sm:py-2 rounded-lg bg-[#4F46E5] text-sm font-medium text-white hover:bg-[#4338CA] transition-colors flex items-center justify-center gap-1 cursor-pointer min-h-[44px] sm:min-h-0"
                 >
-                  {isSubmitting ? t('common.saving') : t('common.save')}
+                  {isSubmitting ? 'သိမ်းဆည်းနေသည်...' : 'သိမ်းဆည်းမည်'}
                 </button>
               </div>
             </form>
@@ -350,9 +401,9 @@ export default function IncomeManager({
             </div>
             
             <div>
-              <h3 className="text-base font-semibold text-[#111827]">{t('incomes.deleteConfirmTitle')}</h3>
+              <h3 className="text-base font-semibold text-[#111827]">ဤဝင်ငွေမှတ်တမ်းကို ဖျက်ရန် သေချာပါသလား?</h3>
               <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
-                {t('incomes.deleteConfirmDescription')}
+                ဤမှတ်တမ်းကို ဖျက်ပစ်ပြီးပါက ပြန်လည်ရယူ၍ မရနိုင်ပါ။
               </p>
             </div>
 
@@ -362,14 +413,14 @@ export default function IncomeManager({
                 onClick={() => setDeletingId(null)}
                 className="flex-1 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
-                {t('common.cancel')}
+                မလုပ်တော့ပါ
               </button>
               <button
                 id="btn-delete-income-confirm"
                 onClick={handleDeleteConfirm}
                 className="flex-1 py-2 rounded-lg bg-[#DC2626] text-sm font-medium text-white hover:bg-[#B91C1C] transition-colors cursor-pointer"
               >
-                {t('common.delete')}
+                ဖျက်မည်
               </button>
             </div>
           </div>
