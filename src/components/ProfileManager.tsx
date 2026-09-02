@@ -70,10 +70,6 @@ export default function ProfileManager({
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Profile Form */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
-        <div className="border-b border-slate-100 pb-4 mb-5 sm:mb-6">
-          <h3 className="font-semibold text-slate-800 text-sm">ကိုယ်ရေးအချက်အလက် ပြင်ဆင်ခြင်း</h3>
-          <p className="text-xs text-slate-400 mt-1">သင်၏ အမည်နှင့် လစဉ်ဝင်ငွေ ရည်မှန်းချက်များကို ပြင်ဆင်နိုင်ပါသည်</p>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           {/* Avatar picker */}

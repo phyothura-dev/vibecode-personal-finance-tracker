@@ -145,9 +145,7 @@ export default function IncomeManager({
               <Calendar className="w-7 h-7" />
             </div>
             <h4 className="font-bold text-slate-800 text-lg">ဝင်ငွေမှတ်တမ်း မရှိသေးပါ</h4>
-            <p className="text-sm text-slate-500 mt-1 max-w-sm">
-              မှတ်တမ်းများ မရှိသေးပါ
-            </p>
+
             <button
               id="btn-empty-state-add-income"
               onClick={openAddModal}

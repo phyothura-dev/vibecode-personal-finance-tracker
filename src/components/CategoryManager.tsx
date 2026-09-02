@@ -117,10 +117,6 @@ export default function CategoryManager({
     <div className="space-y-6">
       {/* Main card */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden p-4 sm:p-6">
-        <div className="mb-5 sm:mb-6">
-          <h3 className="font-semibold text-slate-800 text-sm">ခေါင်းစဉ်အုပ်စု စီမံခန့်ခွဲမှု</h3>
-          <p className="text-xs text-slate-400 mt-1">ဝင်ငွေနှင့် ထွက်ငွေအတွက် ခေါင်းစဉ်အုပ်စုများကို စိတ်ကြိုက်ထည့်သွင်း၊ ပြင်ဆင် သို့မဟုတ် ဖျက်ပစ်နိုင်သည်</p>
-        </div>
 
         {/* Toggle tabs */}
         <div className="flex border-b border-slate-200 mb-6">
