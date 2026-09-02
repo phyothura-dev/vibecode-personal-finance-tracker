@@ -3,7 +3,7 @@ export type Language = 'en' | 'mm';
 export const translations = {
   en: {
     common: {
-      appName: 'FinTrack',
+      appName: 'SmartWallet',
       cancel: 'Cancel',
       save: 'Save',
       delete: 'Delete',
@@ -254,7 +254,7 @@ export const translations = {
   },
   mm: {
     common: {
-      appName: 'FinTrack',
+      appName: 'SmartWallet',
       cancel: 'မလုပ်တော့ပါ',
       save: 'သိမ်းမည်',
       delete: 'ဖျက်မည်',
@@ -279,7 +279,7 @@ export const translations = {
       no: 'မဟုတ်ပါ',
     },
     nav: {
-      dashboard: 'ပင်မဒိုင်ခွက်',
+      dashboard: 'ပင်မစာမျက်နှာ',
       income: 'ဝင်ငွေ',
       expenses: 'ထွက်ငွေ',
       categories: 'အမျိုးအစားများ',
@@ -336,7 +336,7 @@ export const translations = {
       currency: 'ငွေကြေးစနစ်',
       goal: 'ရည်မှန်းချက်',
       goalProgress: 'ရည်မှန်းချက်- {currency}{goal}',
-      dashboard: 'ပင်မဒိုင်ခွက် ခြုံငုံသုံးသပ်ချက်',
+      dashboard: 'ပင်မ ခြုံငုံသုံးသပ်ချက်',
       incomes: 'ဝင်ငွေ စီမံခန့်ခွဲမှု',
       expenses: 'ထွက်ငွေ စီမံခန့်ခွဲမှု',
       categories: 'ကိုယ်ပိုင်အမျိုးအစားများ',

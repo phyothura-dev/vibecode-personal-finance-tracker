@@ -479,13 +479,13 @@ export default function App() {
               onClick={() => window.location.reload()}
               className="flex-1 flex justify-center py-2 px-4 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors cursor-pointer"
             >
-              Retry Connection
+              ပြန်လည်ချိတ်ဆက်မည်
             </button>
             <button
               onClick={handleSignOut}
               className="px-4 py-2 rounded-xl text-sm font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              Sign Out
+              အကောင့်မှ ထွက်မည်
             </button>
           </div>
         </div>
@@ -502,7 +502,7 @@ export default function App() {
         </div>
         <div className="flex items-center gap-2 text-slate-600 text-sm font-semibold">
           <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
-          Synchronizing database logs...
+          အချက်အလက်များကို ချိတ်ဆက်ရယူနေပါသည်...
         </div>
       </div>
     );

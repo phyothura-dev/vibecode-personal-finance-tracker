@@ -15,7 +15,7 @@ export default function Header({
   onOpenMobileSidebar,
   totalIncomeForMonth = 0,
 }: HeaderProps) {
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
 
   const getPageTitle = () => {
     switch (currentTab) {
@@ -65,33 +65,6 @@ export default function Header({
 
       {/* Stats/Badges Row */}
       <div className="flex items-center gap-3">
-        {/* Language Switcher EN | MM */}
-        <div id="language-switcher" className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-slate-50 text-[11px] font-semibold h-7.5">
-          <button
-            id="btn-lang-en"
-            onClick={() => setLanguage('en')}
-            className={`px-2.5 h-full transition-colors flex items-center justify-center cursor-pointer ${
-              language === 'en'
-                ? 'bg-[#4F46E5] text-white font-bold'
-                : 'text-slate-500 hover:text-slate-800 bg-transparent'
-            }`}
-          >
-            EN
-          </button>
-          <div className="w-px h-4 bg-slate-200" />
-          <button
-            id="btn-lang-mm"
-            onClick={() => setLanguage('mm')}
-            className={`px-2.5 h-full transition-colors flex items-center justify-center cursor-pointer ${
-              language === 'mm'
-                ? 'bg-[#4F46E5] text-white font-bold'
-                : 'text-slate-500 hover:text-slate-800 bg-transparent'
-            }`}
-          >
-            MM
-          </button>
-        </div>
-
         {/* Monthly Goal Progress Indicator (Header Accent) */}
         {isGoalSet && (
           <div className="hidden md:flex items-center gap-3 bg-[#EEF2FF] border border-indigo-100 rounded-lg px-3 py-1">
