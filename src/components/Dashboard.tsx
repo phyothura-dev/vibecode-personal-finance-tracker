@@ -347,11 +347,6 @@ export default function Dashboard({ incomes, expenses, profile, onChangeTab }: D
                       {currencySymbol}
                       {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
-                    {tx.note && (
-                      <p className="truncate text-[10px] text-slate-400 max-w-[110px] sm:max-w-[160px] mt-0.5">
-                        {tx.note}
-                      </p>
-                    )}
                   </div>
                 </div>
               ))}

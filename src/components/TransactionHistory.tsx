@@ -45,11 +45,7 @@ export default function TransactionHistory({
     // 1. Search text
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter(
-        (tx) =>
-          tx.title.toLowerCase().includes(q) ||
-          (tx.note && tx.note.toLowerCase().includes(q))
-      );
+      list = list.filter((tx) => tx.title.toLowerCase().includes(q));
     }
 
     // 2. Type Filter
@@ -218,7 +214,6 @@ export default function TransactionHistory({
                     <th className="py-3.5 px-4">ခေါင်းစဉ်</th>
                     <th className="py-3.5 px-4">ခေါင်းစဉ်အုပ်စု</th>
                     <th className="py-3.5 px-4">ရက်စွဲ</th>
-                    <th className="py-3.5 px-4">မှတ်ချက်</th>
                     <th className="py-3.5 px-6 text-right">ပမာဏ</th>
                   </tr>
                 </thead>
@@ -251,9 +246,6 @@ export default function TransactionHistory({
                         </span>
                       </td>
                       <td className="py-4 px-4 text-xs text-slate-500">{tx.date}</td>
-                      <td className="py-4 px-4 text-xs text-slate-400 italic max-w-[200px] truncate">
-                        {tx.note || <span className="text-slate-250">-</span>}
-                      </td>
                       <td className={`py-4 px-6 text-right font-semibold ${
                         tx.type === 'income' ? 'text-[#059669]' : 'text-[#DC2626]'
                       }`}>
@@ -308,12 +300,6 @@ export default function TransactionHistory({
                       </span>
                     </div>
                   </div>
-
-                  {tx.note && (
-                    <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2.5 italic break-words">
-                      {tx.note}
-                    </p>
-                  )}
                 </div>
               ))}
             </div>

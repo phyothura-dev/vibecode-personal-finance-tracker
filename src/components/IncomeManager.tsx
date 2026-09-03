@@ -32,7 +32,6 @@ export default function IncomeManager({
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
-  const [note, setNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Deletion confirm state
@@ -46,7 +45,6 @@ export default function IncomeManager({
     setAmount('');
     setCategory(incomeCategories[0]?.name || '');
     setDate(new Date().toISOString().substring(0, 10));
-    setNote('');
     setEditingId(null);
     setIsOpenForm(true);
   };
@@ -56,7 +54,6 @@ export default function IncomeManager({
     setAmount(item.amount.toString());
     setCategory(item.category);
     setDate(item.date);
-    setNote(item.note || '');
     setEditingId(item.id);
     setIsOpenForm(true);
   };
@@ -88,7 +85,6 @@ export default function IncomeManager({
         amount: parsedAmount,
         category,
         date,
-        note: note.trim() || undefined,
       };
 
       if (editingId) {
@@ -164,7 +160,6 @@ export default function IncomeManager({
                     <th className="py-3 px-6">ခေါင်းစဉ်</th>
                     <th className="py-3 px-4">အမျိုးအစား</th>
                     <th className="py-3 px-4">ရက်စွဲ</th>
-                    <th className="py-3 px-4">မှတ်ချက်</th>
                     <th className="py-3 px-4 text-right">ပမာဏ</th>
                     <th className="py-3 px-6 text-center">လုပ်ဆောင်ချက်</th>
                   </tr>
@@ -181,9 +176,6 @@ export default function IncomeManager({
                           </span>
                         </td>
                         <td className="py-4 px-4 text-slate-500 text-xs">{item.date}</td>
-                        <td className="py-4 px-4 max-w-[200px] truncate text-slate-500 text-xs">
-                          {item.note || <span className="text-slate-300 italic">-</span>}
-                        </td>
                         <td className="py-4 px-4 font-semibold text-[#059669] text-right">
                           +{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </td>
@@ -236,12 +228,6 @@ export default function IncomeManager({
                         </span>
                       </div>
                     </div>
-
-                    {item.note && (
-                      <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2.5 italic break-words">
-                        {item.note}
-                      </p>
-                    )}
 
                     <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
                       <button
@@ -349,20 +335,6 @@ export default function IncomeManager({
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors cursor-pointer"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
-                  မှတ်ချက်
-                </label>
-                <textarea
-                  id="income-input-note"
-                  rows={3}
-                  placeholder="မှတ်ချက် အသေးစိတ် (ရွေးချယ်ရန်)"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 bg-white transition-colors resize-none"
                 />
               </div>
 
