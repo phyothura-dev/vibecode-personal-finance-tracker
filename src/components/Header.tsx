@@ -22,6 +22,8 @@ export default function Header({
         return 'ဝင်ငွေ စီမံခန့်ခွဲမှု';
       case 'expenses':
         return 'ထွက်ငွေ စီမံခန့်ခွဲမှု';
+      case 'wallets':
+        return 'ပိုက်ဆံအိတ်များ စီမံခန့်ခွဲမှု';
       case 'categories':
         return 'ကိုယ်ပိုင်အမျိုးအစားများ';
       case 'transactions':

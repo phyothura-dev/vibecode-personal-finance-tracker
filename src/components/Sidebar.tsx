@@ -1,4 +1,4 @@
-import { LayoutDashboard, ArrowUpRight, ArrowDownRight, FolderTree, ArrowLeftRight, UserCircle, LogOut, Wallet, X } from 'lucide-react';
+import { LayoutDashboard, ArrowUpRight, ArrowDownRight, FolderTree, ArrowLeftRight, UserCircle, LogOut, Wallet, WalletCards, X } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface SidebarProps {
@@ -22,6 +22,7 @@ export default function Sidebar({
     { id: 'dashboard', label: 'ပင်မစာမျက်နှာ', icon: LayoutDashboard },
     { id: 'incomes', label: 'ဝင်ငွေ', icon: ArrowUpRight },
     { id: 'expenses', label: 'ထွက်ငွေ', icon: ArrowDownRight },
+    { id: 'wallets', label: 'ပိုက်ဆံအိတ်များ', icon: WalletCards },
     { id: 'categories', label: 'အမျိုးအစားများ', icon: FolderTree },
     { id: 'transactions', label: 'မှတ်တမ်း', icon: ArrowLeftRight },
     { id: 'profile', label: 'ပရိုဖိုင်', icon: UserCircle },

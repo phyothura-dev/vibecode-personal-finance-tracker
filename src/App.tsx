@@ -10,7 +10,7 @@ import {
   setDoc
 } from 'firebase/firestore';
 import { auth, db, handleFirestoreError, OperationType } from './lib/firebase';
-import { UserProfile, Category, Income, Expense } from './types';
+import type { UserProfile, Category, Income, Expense, Wallet, Transfer } from './types';
 
 // Components
 import Auth from './components/Auth';
@@ -19,18 +19,21 @@ import Header from './components/Header';
 import Dashboard from './components/Dashboard';
 import IncomeManager from './components/IncomeManager';
 import ExpenseManager from './components/ExpenseManager';
+import WalletManager from './components/WalletManager';
 import CategoryManager from './components/CategoryManager';
 import TransactionHistory from './components/TransactionHistory';
 import ProfileManager from './components/ProfileManager';
 import { ToastContainer, Toast } from './components/Toast';
 
-import { Wallet, RefreshCw } from 'lucide-react';
+import { Wallet as WalletIcon, RefreshCw } from 'lucide-react';
 
 export default function App() {
   // Auth & Session
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
@@ -79,11 +82,12 @@ export default function App() {
 
       let loadedProfile = false;
       let loadedCategories = false;
+      let loadedWallets = false;
       let loadedIncomes = false;
       let loadedExpenses = false;
 
       const checkLoadingFinished = () => {
-        if (loadedProfile && loadedCategories && loadedIncomes && loadedExpenses) {
+        if (loadedProfile && loadedCategories && loadedWallets && loadedIncomes && loadedExpenses) {
           setDataLoading(false);
         }
       };
@@ -177,7 +181,56 @@ export default function App() {
         setDataLoading(false);
       });
 
-      // C. Incomes listener
+      // C. Wallets listener
+      const unsubWallets = onSnapshot(collection(db, 'users', currentUser.uid, 'wallets'), async (snapshot) => {
+        if (snapshot.empty) {
+          try {
+            const defaultWallets = [
+              { type: 'kbz_pay' as const, initialBalance: 0 },
+              { type: 'wave_pay' as const, initialBalance: 0 },
+              { type: 'cb_pay' as const, initialBalance: 0 },
+              { type: 'mab_bank' as const, initialBalance: 0 },
+              { type: 'yoma_bank' as const, initialBalance: 0 },
+            ];
+            for (const w of defaultWallets) {
+              await addDoc(collection(db, 'users', currentUser.uid, 'wallets'), {
+                ...w,
+                createdAt: new Date().toISOString()
+              });
+            }
+          } catch (seedErr) {
+            console.error("Error seeding default wallets:", seedErr);
+          }
+        } else {
+          const list: Wallet[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            list.push({
+              id: docSnap.id,
+              type: (data.type as any) || 'kbz_pay',
+              initialBalance: data.initialBalance || 0,
+              name: data.name,
+              createdAt: data.createdAt || '',
+            });
+          });
+          setWallets(list);
+        }
+
+        if (!loadedWallets) {
+          loadedWallets = true;
+          checkLoadingFinished();
+        }
+      }, (err) => {
+        console.error("Firestore listener error for wallets:", err);
+        setDbError({
+          message: err instanceof Error ? err.message : String(err),
+          code: (err as any).code || 'unknown',
+          path: `users/${currentUser.uid}/wallets`
+        });
+        setDataLoading(false);
+      });
+
+      // D. Incomes listener
       const unsubIncomes = onSnapshot(collection(db, 'users', currentUser.uid, 'incomes'), (snapshot) => {
         const list: Income[] = [];
         snapshot.forEach((docSnap) => {
@@ -188,6 +241,7 @@ export default function App() {
             amount: data.amount || 0,
             category: data.category || '',
             date: data.date || '',
+            walletId: data.walletId,
             note: data.note,
             createdAt: data.createdAt || '',
           });
@@ -208,7 +262,7 @@ export default function App() {
         setDataLoading(false);
       });
 
-      // D. Expenses listener
+      // E. Expenses listener
       const unsubExpenses = onSnapshot(collection(db, 'users', currentUser.uid, 'expenses'), (snapshot) => {
         const list: Expense[] = [];
         snapshot.forEach((docSnap) => {
@@ -219,6 +273,7 @@ export default function App() {
             amount: data.amount || 0,
             category: data.category || '',
             date: data.date || '',
+            walletId: data.walletId,
             note: data.note,
             createdAt: data.createdAt || '',
           });
@@ -239,11 +294,32 @@ export default function App() {
         setDataLoading(false);
       });
 
+      // F. Transfers listener
+      const unsubTransfers = onSnapshot(collection(db, 'users', currentUser.uid, 'transfers'), (snapshot) => {
+        const list: Transfer[] = [];
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            id: docSnap.id,
+            fromWalletId: data.fromWalletId || '',
+            toWalletId: data.toWalletId || '',
+            amount: data.amount || 0,
+            date: data.date || '',
+            createdAt: data.createdAt || '',
+          });
+        });
+        setTransfers(list);
+      }, (err) => {
+        console.error("Firestore listener error for transfers:", err);
+      });
+
       return () => {
         unsubProfile();
         unsubCategories();
+        unsubWallets();
         unsubIncomes();
         unsubExpenses();
+        unsubTransfers();
       };
     });
 
@@ -365,6 +441,64 @@ export default function App() {
     }
   };
 
+  const handleAddWallet = async (data: Omit<Wallet, 'id' | 'createdAt'>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/wallets`;
+    try {
+      await addDoc(collection(db, 'users', user.uid, 'wallets'), {
+        ...data,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, path);
+    }
+  };
+
+  const handleEditWallet = async (id: string, data: Partial<Wallet>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/wallets/${id}`;
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'wallets', id), data);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, path);
+    }
+  };
+
+  const handleDeleteWallet = async (id: string) => {
+    if (!user) return;
+    const path = `users/${user.uid}/wallets/${id}`;
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'wallets', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    }
+  };
+
+  const handleAddTransfer = async (data: Omit<Transfer, 'id' | 'createdAt'>) => {
+    if (!user) return;
+    const path = `users/${user.uid}/transfers`;
+    try {
+      await addDoc(collection(db, 'users', user.uid, 'transfers'), {
+        ...data,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, path);
+      throw err;
+    }
+  };
+
+  const handleDeleteTransfer = async (id: string) => {
+    if (!user) return;
+    const path = `users/${user.uid}/transfers/${id}`;
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'transfers', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+      throw err;
+    }
+  };
+
   const handleUpdateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return;
     const path = `users/${user.uid}`;
@@ -389,7 +523,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-150 mb-4 animate-bounce">
-          <Wallet className="w-6 h-6" />
+          <WalletIcon className="w-6 h-6" />
         </div>
         <div className="flex items-center gap-2 text-slate-600 text-sm font-semibold">
           <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
@@ -416,7 +550,7 @@ export default function App() {
         <div className="max-w-2xl w-full bg-white rounded-2xl border border-slate-200 p-8 shadow-xs space-y-6">
           <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
-              <Wallet className="w-5 h-5" />
+              <WalletIcon className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-900">Database Connection Trouble</h2>
@@ -498,7 +632,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-150 mb-4 animate-pulse">
-          <Wallet className="w-6 h-6" />
+          <WalletIcon className="w-6 h-6" />
         </div>
         <div className="flex items-center gap-2 text-slate-600 text-sm font-semibold">
           <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
@@ -539,8 +673,12 @@ export default function App() {
               <Dashboard
                 incomes={incomes}
                 expenses={expenses}
+                wallets={wallets}
+                transfers={transfers}
                 profile={profile}
                 onChangeTab={setCurrentTab}
+                onAddTransfer={handleAddTransfer}
+                onShowToast={handleShowToast}
               />
             )}
 
@@ -548,6 +686,7 @@ export default function App() {
               <IncomeManager
                 incomes={incomes}
                 categories={categories}
+                wallets={wallets}
                 profile={profile}
                 onAddIncome={handleAddIncome}
                 onEditIncome={handleEditIncome}
@@ -560,10 +699,26 @@ export default function App() {
               <ExpenseManager
                 expenses={expenses}
                 categories={categories}
+                wallets={wallets}
                 profile={profile}
                 onAddExpense={handleAddExpense}
                 onEditExpense={handleEditExpense}
                 onDeleteExpense={handleDeleteExpense}
+                onShowToast={handleShowToast}
+              />
+            )}
+
+            {currentTab === 'wallets' && (
+              <WalletManager
+                wallets={wallets}
+                incomes={incomes}
+                expenses={expenses}
+                transfers={transfers}
+                onAddWallet={handleAddWallet}
+                onEditWallet={handleEditWallet}
+                onDeleteWallet={handleDeleteWallet}
+                onAddTransfer={handleAddTransfer}
+                onDeleteTransfer={handleDeleteTransfer}
                 onShowToast={handleShowToast}
               />
             )}
@@ -583,6 +738,7 @@ export default function App() {
                 incomes={incomes}
                 expenses={expenses}
                 categories={categories}
+                wallets={wallets}
                 profile={profile}
               />
             )}

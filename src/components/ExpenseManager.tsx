@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, Edit3, Calendar, AlertTriangle, X } from 'lucide-react';
-import { Expense, Category, UserProfile } from '../types';
+import React, { useState, useMemo } from 'react';
+import { Plus, Trash2, Edit3, Calendar, AlertTriangle, X, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Expense, Category, UserProfile, Wallet, getWalletLabel } from '../types';
+
+type ExpenseSortField = 'title' | 'category' | 'date' | 'amount';
+type SortOrder = 'asc' | 'desc';
 
 interface ExpenseManagerProps {
   expenses: Expense[];
   categories: Category[];
+  wallets?: Wallet[];
   profile: UserProfile | null;
   onAddExpense: (data: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>;
   onEditExpense: (id: string, data: Omit<Expense, 'id' | 'createdAt'>) => Promise<void>;
@@ -15,6 +19,7 @@ interface ExpenseManagerProps {
 export default function ExpenseManager({
   expenses,
   categories,
+  wallets = [],
   profile,
   onAddExpense,
   onEditExpense,
@@ -22,6 +27,10 @@ export default function ExpenseManager({
   onShowToast,
 }: ExpenseManagerProps) {
   const currencySymbol = 'Ks ';
+
+  // Sort State
+  const [sortField, setSortField] = useState<ExpenseSortField>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   // State
   const [isOpenForm, setIsOpenForm] = useState(false);
@@ -31,6 +40,7 @@ export default function ExpenseManager({
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
+  const [walletId, setWalletId] = useState('');
   const [date, setDate] = useState(new Date().toISOString().substring(0, 10));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,10 +50,60 @@ export default function ExpenseManager({
   // Filter categories to only expense categories
   const expenseCategories = categories.filter((cat) => cat.type === 'expense');
 
+  const getWalletName = (wId?: string) => {
+    if (!wId) {
+      const def = wallets[0];
+      return def ? getWalletLabel(def.type, def.name) : null;
+    }
+    const found = wallets.find((w) => w.id === wId);
+    return found ? getWalletLabel(found.type, found.name) : null;
+  };
+
+  const handleSort = (field: ExpenseSortField) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder(field === 'amount' || field === 'date' ? 'desc' : 'asc');
+    }
+  };
+
+  const sortedExpenses = useMemo(() => {
+    return [...expenses].sort((a, b) => {
+      let result = 0;
+      if (sortField === 'title') {
+        result = a.title.localeCompare(b.title);
+      } else if (sortField === 'category') {
+        result = a.category.localeCompare(b.category);
+      } else if (sortField === 'date') {
+        result = new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortField === 'amount') {
+        result = a.amount - b.amount;
+      }
+      return sortOrder === 'asc' ? result : -result;
+    });
+  }, [expenses, sortField, sortOrder]);
+
+  const totalExpenseAmount = useMemo(() => {
+    return expenses.reduce((sum, item) => sum + item.amount, 0);
+  }, [expenses]);
+
+  const renderSortIcon = (field: ExpenseSortField) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 opacity-40 group-hover:opacity-100 transition-opacity" />;
+    }
+    return sortOrder === 'asc' ? (
+      <ArrowUp className="w-3.5 h-3.5 text-indigo-600" />
+    ) : (
+      <ArrowDown className="w-3.5 h-3.5 text-indigo-600" />
+    );
+  };
+
   const openAddModal = () => {
     setTitle('');
     setAmount('');
     setCategory(expenseCategories[0]?.name || '');
+    setWalletId(wallets[0]?.id || '');
     setDate(new Date().toISOString().substring(0, 10));
     setEditingId(null);
     setIsOpenForm(true);
@@ -53,6 +113,7 @@ export default function ExpenseManager({
     setTitle(item.title);
     setAmount(item.amount.toString());
     setCategory(item.category);
+    setWalletId(item.walletId || wallets[0]?.id || '');
     setDate(item.date);
     setEditingId(item.id);
     setIsOpenForm(true);
@@ -84,6 +145,7 @@ export default function ExpenseManager({
         title: title.trim(),
         amount: parsedAmount,
         category,
+        walletId: walletId || undefined,
         date,
       };
 
@@ -157,96 +219,160 @@ export default function ExpenseManager({
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">
-                    <th className="py-3 px-6">ခေါင်းစဉ်</th>
-                    <th className="py-3 px-4">အမျိုးအစား</th>
-                    <th className="py-3 px-4">ရက်စွဲ</th>
-                    <th className="py-3 px-4 text-right">ပမာဏ</th>
+                    <th
+                      onClick={() => handleSort('title')}
+                      className="py-3 px-6 cursor-pointer select-none hover:bg-slate-100/80 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>ခေါင်းစဉ်</span>
+                        {renderSortIcon('title')}
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('category')}
+                      className="py-3 px-4 cursor-pointer select-none hover:bg-slate-100/80 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>အမျိုးအစား</span>
+                        {renderSortIcon('category')}
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('date')}
+                      className="py-3 px-4 cursor-pointer select-none hover:bg-slate-100/80 transition-colors group"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>ရက်စွဲ</span>
+                        {renderSortIcon('date')}
+                      </div>
+                    </th>
+                    <th
+                      onClick={() => handleSort('amount')}
+                      className="py-3 px-4 text-right cursor-pointer select-none hover:bg-slate-100/80 transition-colors group"
+                    >
+                      <div className="flex items-center justify-end gap-1.5">
+                        <span>ပမာဏ</span>
+                        {renderSortIcon('amount')}
+                      </div>
+                    </th>
                     <th className="py-3 px-6 text-center">လုပ်ဆောင်ချက်</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {expenses
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((item) => (
-                      <tr key={item.id} className="hover:bg-slate-50/50 transition-colors text-sm text-slate-700">
-                        <td className="py-4 px-6 font-semibold text-[#111827]">{item.title}</td>
-                        <td className="py-4 px-4">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-[#DC2626]">
-                            {item.category}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 text-slate-500 text-xs">{item.date}</td>
-                        <td className="py-4 px-4 font-semibold text-[#DC2626] text-right">
-                          -{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-4 px-6 text-center">
-                          <div className="flex items-center justify-center gap-1.5">
-                            <button
-                              id={`btn-edit-expense-${item.id}`}
-                              onClick={() => openEditModal(item)}
-                              title="ပြင်ဆင်မည်"
-                              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors focus:outline-none cursor-pointer"
-                            >
-                              <Edit3 className="w-4 h-4" />
-                            </button>
-                            <button
-                              id={`btn-delete-expense-${item.id}`}
-                              onClick={() => setDeletingId(item.id)}
-                              title="ဖျက်မည်"
-                              className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none cursor-pointer"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                  {sortedExpenses.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors text-sm text-slate-700">
+                      <td className="py-4 px-6 font-semibold text-[#111827]">
+                        <div className="flex items-center gap-2">
+                          <span>{item.title}</span>
+                          {getWalletName(item.walletId) && (
+                            <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200/60">
+                              {getWalletName(item.walletId)}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-[#DC2626]">
+                          {item.category}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4 text-slate-500 text-xs">{item.date}</td>
+                      <td className="py-4 px-4 font-semibold text-[#DC2626] text-right">
+                        -{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-4 px-6 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            id={`btn-edit-expense-${item.id}`}
+                            onClick={() => openEditModal(item)}
+                            title="ပြင်ဆင်မည်"
+                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors focus:outline-none cursor-pointer"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            id={`btn-delete-expense-${item.id}`}
+                            onClick={() => setDeletingId(item.id)}
+                            title="ဖျက်မည်"
+                            className="rounded-lg p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors focus:outline-none cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
+                <tfoot className="bg-slate-50 border-t-2 border-slate-200 font-semibold text-slate-800 text-sm">
+                  <tr>
+                    <td colSpan={3} className="py-3.5 px-6">
+                      စုစုပေါင်း ထွက်ငွေ ({expenses.length} ခု)
+                    </td>
+                    <td className="py-3.5 px-4 text-right text-[#DC2626] font-bold text-base">
+                      -{currencySymbol}{totalExpenseAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="py-3.5 px-6"></td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 
             {/* Mobile Card List View */}
             <div className="md:hidden divide-y divide-slate-100">
-              {expenses
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((item) => (
-                  <div key={item.id} className="p-4 space-y-2.5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-900 text-sm break-words">{item.title}</p>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-[#DC2626]">
-                            {item.category}
-                          </span>
-                          <span className="text-slate-400 text-xs">•</span>
-                          <span className="text-slate-500 text-xs">{item.date}</span>
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <span className="font-bold text-[#DC2626] text-base">
-                          -{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {sortedExpenses.map((item) => (
+                <div key={item.id} className="p-4 space-y-2.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-900 text-sm break-words">{item.title}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-[#DC2626]">
+                          {item.category}
                         </span>
+                        {getWalletName(item.walletId) && (
+                          <>
+                            <span className="text-slate-400 text-xs">•</span>
+                            <span className="text-[11px] font-medium bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                              {getWalletName(item.walletId)}
+                            </span>
+                          </>
+                        )}
+                        <span className="text-slate-400 text-xs">•</span>
+                        <span className="text-slate-500 text-xs">{item.date}</span>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
-                      <button
-                        id={`btn-edit-expense-mobile-${item.id}`}
-                        onClick={() => openEditModal(item)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer min-h-[36px]"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" /> ပြင်ဆင်မည်
-                      </button>
-                      <button
-                        id={`btn-delete-expense-mobile-${item.id}`}
-                        onClick={() => setDeletingId(item.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50/60 text-xs font-medium text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer min-h-[36px]"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" /> ဖျက်မည်
-                      </button>
+                    <div className="text-right flex-shrink-0">
+                      <span className="font-bold text-[#DC2626] text-base">
+                        -{currencySymbol}{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
                     </div>
                   </div>
-                ))}
+
+                  <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                    <button
+                      id={`btn-edit-expense-mobile-${item.id}`}
+                      onClick={() => openEditModal(item)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer min-h-[36px]"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> ပြင်ဆင်မည်
+                    </button>
+                    <button
+                      id={`btn-delete-expense-mobile-${item.id}`}
+                      onClick={() => setDeletingId(item.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rose-100 bg-rose-50/60 text-xs font-medium text-rose-600 hover:bg-rose-100 transition-colors cursor-pointer min-h-[36px]"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> ဖျက်မည်
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Mobile Total Footer */}
+              <div className="p-4 bg-slate-50 border-t-2 border-slate-200 flex items-center justify-between font-semibold text-sm">
+                <span className="text-slate-700">စုစုပေါင်း ထွက်ငွေ ({expenses.length} ခု)</span>
+                <span className="text-[#DC2626] text-base font-bold">
+                  -{currencySymbol}{totalExpenseAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </>
         )}
@@ -323,6 +449,26 @@ export default function ExpenseManager({
                   </select>
                 </div>
               </div>
+
+              {wallets.length > 0 && (
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
+                    ပိုက်ဆံအိတ် / အကောင့် *
+                  </label>
+                  <select
+                    id="expense-input-wallet"
+                    value={walletId}
+                    onChange={(e) => setWalletId(e.target.value)}
+                    className="block w-full px-3.5 py-2.5 sm:py-2 border border-slate-200 bg-white rounded-lg text-slate-900 focus:outline-none focus:border-indigo-500 text-base sm:text-sm focus:ring-1 focus:ring-indigo-500 transition-colors cursor-pointer"
+                  >
+                    {wallets.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {getWalletLabel(w.type, w.name)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div>
                 <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5">
